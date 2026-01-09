@@ -1,0 +1,14 @@
+{
+    "api": "orders.create",
+    "required": [
+        "amount",
+        "currency"
+    ],
+    "types": {
+        "amount": "number",
+        "currency": [
+            "INR",
+            "USD"
+        ]
+    }
+}
