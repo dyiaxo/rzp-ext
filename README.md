@@ -1,3 +1,2 @@
-# rzp-ext README
-
+# rzp-ext
 linter for correct api schema and methods.
