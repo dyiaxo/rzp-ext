@@ -23,7 +23,7 @@ export class SchemaRegistry{
             const filePath = path.join(schemaDir, file);
             const content = fs.readFileSync(filePath, 'utf-8');
             const schema: ApiSchema = JSON.parse(content);
-
+            
             // Store by API path: "orders.create", "payments.fetch", etc.
             this.schemas.set(schema.api, schema);
         });

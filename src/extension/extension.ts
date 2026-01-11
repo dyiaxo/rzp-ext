@@ -27,14 +27,34 @@ export function activate(context: vscode.ExtensionContext) {
   const lintQueue = new Map<string, NodeJS.Timeout>();
 
   function scheduleLint(doc: vscode.TextDocument) {
+    // Only lint JavaScript/TypeScript files
+    if (!['javascript', 'typescript', 'javascriptreact', 'typescriptreact'].includes(doc.languageId)) {
+      return;
+    }
+
+    // Skip non-file schemes (output, git, etc.)
+    if (doc.uri.scheme !== 'file') {
+      return;
+    }
+
     const key = doc.uri.toString();
-    clearTimeout(lintQueue.get(key));
-    lintQueue.set(key, setTimeout(() => {
+    const existing = lintQueue.get(key);
+    if (existing) {
+      clearTimeout(existing);
+    }
+    
+    const timeout = setTimeout(() => {
       linter.lintDocument(doc, diagnostic);
-    }, 300));
+      lintQueue.delete(key);
+    }, 300);
+    
+    lintQueue.set(key, timeout);
   }
-  vscode.workspace.onDidOpenTextDocument(scheduleLint);
-  vscode.workspace.onDidChangeTextDocument(e => scheduleLint(e.document));
+  
+  context.subscriptions.push(
+    vscode.workspace.onDidOpenTextDocument(scheduleLint),
+    vscode.workspace.onDidChangeTextDocument(e => scheduleLint(e.document))
+  );
 
   setTimeout(() => {
     vscode.workspace.textDocuments.forEach(scheduleLint);
